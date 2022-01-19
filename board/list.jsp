@@ -6,8 +6,10 @@
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
+	ResultSet rs2 = null;
 	String sql = "";
 	int totalCount = 0;	    
+	int replyCnt = 0;
 	
 	try{					
 		conn = Dbconn.getConnection();
@@ -22,6 +24,8 @@
 		    sql = "select b_idx, b_userid, b_title, b_regdate, b_hit, b_like from tb_board order by b_idx desc";
 		    pstmt = conn.prepareStatement(sql);
 		    rs = pstmt.executeQuery();
+		    
+		    
 	}catch(Exception e){
 		 e.printStackTrace();
 	}
@@ -45,17 +49,29 @@
 			<th width="200">날짜</th>
 			<th width="75">좋아요</th>
 		</tr>
-			<%while(rs.next()){
+			<%
+			while(rs.next()){
 				String b_idx = rs.getString("b_idx");
 				String b_userid = rs.getString("b_userid");
 				String b_title = rs.getString("b_title");
 				String b_regdate = rs.getString("b_regdate").substring(0, 10);
 				String b_hit = rs.getString("b_hit");
 				String b_like = rs.getString("b_like");
-				%>
+				
+				sql = "select count(r_boardidx) as total from tb_reply where r_boardidx = ?";
+			    pstmt = conn.prepareStatement(sql);
+			    pstmt.setString(1, b_idx);
+			    rs2 = pstmt.executeQuery();
+			    	if(rs2.next()){
+			    		replyCnt = rs2.getInt("total");
+			    	}
+			%>
 		<tr>
 			<td><%=b_idx%></td>
-			<td><a href="./view.jsp?b_idx=<%=b_idx%>"><%=b_title%></td>
+			<td><a href="./view.jsp?b_idx=<%=b_idx%>"><%=b_title%>
+			<%if(replyCnt > 0){
+				%>(<%=replyCnt%>)
+				<%}%></td>
 			<td><%=b_userid%></td>
 			<td><%=b_hit%></td>
 			<td><%=b_regdate%></td>

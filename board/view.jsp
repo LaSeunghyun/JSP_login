@@ -4,19 +4,20 @@
 	<%@page import="com.koreait.db.Dbconn"%>
 <%
 	request.setCharacterEncoding("UTF-8");
-	String b_idx = request.getParameter("b_idx");
 
-	Connection conn = null;
-    PreparedStatement pstmt = null;
-    String sql = "";
-    ResultSet rs = null;
-    
+	String b_idx = request.getParameter("b_idx");
     String b_userid = "";
     String b_title = "";
     String b_content = "";
     String b_regdate = "";
     int b_like = 0;
     int b_hit = 0;
+
+	Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    String sql = "";
     
 	try{
 		conn = Dbconn.getConnection();
@@ -49,19 +50,19 @@
 <head>
 <meta charset="UTF-8">
 <title>커뮤니티 - 글보기</title>
-<script>
+
+	<script>
 	function likebtn(){
 		const xhr = new XMLHttpRequest();
-		xhr.open('GET', './b_like.jsp?b_idx=<%=b_idx%>', true);
-		xhr.send();
-	
 		xhr.onreadystatechange = function(){
-			if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200){
-				document.getElementById('likebtn').innerHTML = xhr.responseText;
+		if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200){
+			document.getElementById('like').innerHTML = xhr.responseText;
 			}
 		}
+		xhr.open('GET', './b_like.jsp?b_idx=<%=b_idx%>', true);
+		xhr.send();
 	}
-</script>
+	</script>
 </head>
 <body>
 	<h2>커뮤니티 - 리스트</h2>
@@ -79,15 +80,49 @@
 			<td>조회수</td><td><%=b_hit%></td>
 		</tr>
 		<tr>
-			<td>좋아요</td><td><%=b_like%></td>
+			<td>좋아요</td><td><span id="like"><%=b_like%></span></td>
 		</tr>
 		<tr>
 			<td>내용</td><td><%=b_content%></td>
 		</tr>
 		<tr>
 			<td colspan="2">
-			<input type="button" value="수정"> | <input type="button" value="삭제"> | <input type="button" value="좋아요" id="likebtn" onclick="likebtn()"> | <input type="button" value="리스트" onclick="location.href='./list.jsp'">
+			<%
+			if(b_userid.equals((String)session.getAttribute("userid"))){
+				%>  
+			<input type="button" value="수정" onclick="location.href='./edit.jsp?b_idx=<%=b_idx%>'"> | <input type="button" value="삭제" onclick="location.href='delete.jsp?b_idx=<%=b_idx%>'"> | 
+			<%			
+			}
+			%>
+			<input type="button" value="좋아요" id="likebtn" onclick="likebtn()"> | <input type="button" value="리스트" onclick="location.href='./list.jsp'">
 		</tr>
 	</table>
+	<hr/>
+	<form method="post" action="reply_ok.jsp">
+		<input type="hidden" name="b_idx" value="<%=b_idx%>">
+	<p><%=session.getAttribute("userid")%> : <input type="text" size="40" name="r_content"> <input type="submit" value="확인"> 
+	</p></form>
+	<hr/>
+	<%
+		sql = "select r_idx, r_userid, r_content, r_regdate from tb_reply where r_boardidx=? order by r_idx desc";
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setString(1, b_idx);
+		rs = pstmt.executeQuery();
+		
+		while(rs.next()){
+			int r_idx = rs.getInt("r_idx");
+			String r_userid = rs.getString("r_userid");
+			String r_content = rs.getString("r_content");
+			String r_regdate = rs.getString("r_regdate");
+	%>
+			<p><%=r_userid%> : <%=r_content%> (<%=r_regdate%>) 
+	<%
+			if(r_userid.equals(session.getAttribute("userid"))){
+	%>
+			<input type="button" value="삭제" onclick="location.href='./r_del.jsp?r_idx=<%=r_idx%>&b_idx=<%=b_idx%>'">
+	<%
+			}
+		}
+	%>
 </body>
 </html>
