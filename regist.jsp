@@ -67,7 +67,6 @@
     <h2>회원가입</h2>
     <form action="./regist_ok.jsp" method="post" name="regform" id="regform" onsubmit="return sendit()">
         <input type="hidden" name="isssn" id="isssn" value="n">
-        <input type="hidden" name="isidcheck" id="isidcheck" value="n">        
         <p>아이디 : <input type="text" name="userid" id="userid" maxlength="20"> <input type="button" id="btnidcheck" value="아이디 중복체크"></p>
         <p id="idcheckmsg"></p>
         <p>비밀번호 : <input type="password" name="userpw" id="userpw" maxlength="20"></p>

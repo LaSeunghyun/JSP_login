@@ -1,59 +1,36 @@
-<%@page import="java.sql.*"%>
+<%@page import="com.koreait.member.MemberDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@page import="java.sql.*"%>
+<%@page import="com.koreait.db.Dbconn"%>
+
 <%
    request.setCharacterEncoding("UTF-8");
-   String userid = request.getParameter("userid");
-   String userpw = request.getParameter("userpw");
-   String name = request.getParameter("name");
-   String hp = request.getParameter("hp");
-   String email = request.getParameter("email");
-   //String hobby = request.getParameter("hobby"); 여러개라 배열로 받아야함
-   String hobby[] = request.getParameterValues("hobby");
-   String hobbystr = "";
-   for(String ho : hobby){
-      hobbystr += ho + " ";   // 드라이브, 등산
-   }
-   String ssn1 = request.getParameter("ssn1");
-   String ssn2 = request.getParameter("ssn2");
-   String zipcode = request.getParameter("zipcode");
-   String address1 = request.getParameter("address1");
-   String address2 = request.getParameter("address2");
-   String address3 = request.getParameter("address3");
-   
-   Connection conn = null;
-   PreparedStatement pstmt = null;
-   
-   String sql = "";
-   String url = "jdbc:mysql://localhost:3306/aiclass";
-   String uid = "root";
-   String upw = "1234";
-   
-   try{
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      conn = DriverManager.getConnection(url, uid, upw);
-      if(conn != null){
-         sql = "insert into tb_member(mem_userid, mem_userpw, mem_name, mem_hp, mem_email, mem_hobby, mem_ssn1, mem_ssn2, mem_zipcode, mem_address1, mem_address2, mem_address3) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-         pstmt = conn.prepareStatement(sql);
-         pstmt.setString(1, userid);
-         pstmt.setString(2, userpw);
-         pstmt.setString(3, name);
-         pstmt.setString(4, hp);
-         pstmt.setString(5, email);
-         pstmt.setString(6, hobbystr);
-         pstmt.setString(7, ssn1);
-         pstmt.setString(8, ssn2);
-         pstmt.setString(9, zipcode);
-         pstmt.setString(10, address1);
-         pstmt.setString(11, address2);
-         pstmt.setString(12, address3);
-         pstmt.executeUpdate();
-      }
-   }catch(Exception e){
-      e.printStackTrace();
-   }
-   
 %>
+    <jsp:useBean id="member" class="com.koreait.member.MemberDTO"/>
+    <jsp:setProperty property="*" name="member"/>
+  
+    <jsp:useBean id="dao" class="com.koreait.member.MemberDAO"/>
+<%
+	if(dao.join(member) == 1){
+%>
+	<script>
+		alert('회원가입이 완료되었습니다.');
+		location.href='login.jsp';
+	</script>
+<%
+	} else {
+%>
+	<script>
+		alert('회원가입이 실패하였습니다.');
+		history.back();
+	</script>
+<%
+	}
+%>
+
+
+<%-- 
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,16 +39,16 @@
 </head>
 <body>
     <h2>회원가입 완료!</h2>
-    <p>아이디 : <%=userid%></p>
-    <p>이름 : <%=name%></p>
-    <p>휴대폰 번호 : <%=hp%></p>
-    <p>이메일 : <%=email%></p>
-    <p>취미 : <%=hobbystr%></p>
-    <p>주민등록번호 : <%=ssn1%> - <%=ssn2%></p>
-    <p>우편번호 : <%=zipcode%></p>
-    <p>주소 : <%=address1%></p>
-    <p>세부주소 : <%=address2%></p>
-    <p>참고항목 : <%=address3%></p>
+    <p>아이디 : <jsp:getProperty property="userid" name="member"/></p>
+    <p>이름 : <jsp:getProperty property="name" name="member"/></p>
+    <p>휴대폰 번호 : <jsp:getProperty property="hp" name="member"/></p>
+    <p>이메일 : <jsp:getProperty property="email" name="member"/></p>
+    <p>취미 : <jsp:getProperty property="hobby" name="member"/></p>
+    <p>주민등록번호 : <jsp:getProperty property="ssn1" name="member"/> - <jsp:getProperty property="ssn2" name="member"/></p>
+    <p>우편번호 : <jsp:getProperty property="zipcode" name="member"/></p>
+    <p>주소 : <jsp:getProperty property="address1" name="member"/></p>
+    <p>세부주소 : <jsp:getProperty property="address2" name="member"/></p>
+    <p>참고항목 : <jsp:getProperty property="address3" name="member"/></p>
     <p><a href='./login.jsp'>로그인하러 가기</a></p>
 </body>
-</html>
+</html> --%>

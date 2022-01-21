@@ -1,69 +1,38 @@
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.sql.*"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    
-    <%
-    	   String userid = request.getParameter("userid");
-	       String userpw = request.getParameter("userpw");
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.sql.*"%>
+<%@page import="com.koreait.member.*"%>
 
-    	   Connection conn = null;
-    	   PreparedStatement pstmt = null;
-    	   ResultSet rs = null;
-    	   
-    	   String sql = "";
-    	   String url = "jdbc:mysql://localhost:3306/aiclass";
-    	   String uid = "root";
-    	   String upw = "1234";
-    	   
-    	   try{
-    	      Class.forName("com.mysql.cj.jdbc.Driver");
-    	      conn = DriverManager.getConnection(url, uid, upw);
-    	      if(conn != null){
-    	    	  sql = "select mem_idx, mem_name from tb_member where mem_userid=? and mem_userpw=?";
-    	    	  pstmt = conn.prepareStatement(sql);
-    	    	  pstmt.setString(1, userid);
-    	    	  pstmt.setString(2, userpw);
-    	    	  rs = pstmt.executeQuery();
-    	    	  if(rs.next()){
-    	    		  session.setAttribute("userid", userid);
-    	    		  session.setAttribute("idx", rs.getString("mem_idx"));
-    	    		  session.setAttribute("name", rs.getString("mem_name"));
-%>        
+	       <jsp:useBean id="anonymous" class="com.koreait.member.MemberDTO"/>
+	       <jsp:setProperty property="*" name="anonymous"/>
+	     
+	       <jsp:useBean id="dao" class="com.koreait.member.MemberDAO"/>
+<%
+			MemberDTO member = dao.login(anonymous);
+			String userid = member.getUserid();
+			String name = member.getname();
+			int idx = member.getIdx();
+			
+			session.setAttribute("userid", userid);
+			session.setAttribute("userpw", userid);
+			session.setAttribute("name", name);
+			session.setAttribute("idx", idx);
+			
+  			if(dao.login(member) == null){
+%>
       	 	<script>	
 	  			   alert('로그인 되었습니다.');
 	  			   location.href="login.jsp";
      	  	</script>
 <%
-    	      }else{
+				
+			}else{
 %>
     	    <script>
     	    	   alert('아이디 혹은 비밀번호를 확인하세요.');
     	    	   history.back();
     	    </script>
-<% 	
-    	     }
+<%
 			}
-		}catch(Exception e){
-    	    	e.printStackTrace();
-	}
 %>
-	      
-//    	Connection conn = null;
-//        Statement stmt = null;
-//   	StringBuilder sql = new StringBuilder();
-//    	
-//    	String url = "jdbc:mysql://localhost:3306/aiclass";
-//   	String uid = "root";
-//    	String upw = "1234";
-//    	   
-//   	try{        	
-//    	    Class.forName("com.mysql.cj.jdbc.Driver");
-//    	    conn = DriverManager.getConnection(url, uid, upw);
-//    	    stmt = conn.createStatement();
-//    	    if(conn != null){
-//    	       sql.append("select mem_idx from tb_member where mem_userid='"+userid).append("' and mem_userpw='"+userpw+"'");
-//    	       out.print(sql);
-//    	       ResultSet rs = stmt.executeQuery(sql.toString());
-//    	       if(rs.next()){
-    %>  
